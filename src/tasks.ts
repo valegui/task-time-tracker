@@ -11,3 +11,8 @@ export interface Task {
     category?: string;
     project?: string;
 }
+
+function isRunning(tracker: TaskTracker): boolean {
+    if (typeof tracker.currentTask == 'undefined') return false;
+    return true;
+}
