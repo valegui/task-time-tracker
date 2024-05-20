@@ -14,9 +14,14 @@ export interface Task {
     project?: string;
 }
 
-function isRunning(tracker: TaskTracker): boolean {
-    if (typeof tracker.currentTask == 'undefined') return false;
-    return true;
+function changeTaskCategory(task: Task, category: string): Task {
+    task.category = category;
+    return task;
+}
+
+function changeTaskProject(task: Task, project: string): Task {
+    task.project = project;
+    return task;
 }
 
 function newTask(name?: string, category?: string, project?: string): Task {
@@ -43,6 +48,11 @@ function stopTask(task: Task | undefined): Task {
     let duration = (Number(task.endTime) - Number(task.startTime)).toString();
     task.duration = endTime;
     return task;
+}
+
+function isRunning(tracker: TaskTracker): boolean {
+    if (typeof tracker.currentTask == 'undefined') return false;
+    return true;
 }
 
 function trackerStopCurrentTask(tracker: TaskTracker): boolean {
