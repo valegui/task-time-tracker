@@ -14,7 +14,8 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		});
 
 		// This adds view for contents of the plugin
-		this.registerView(TASK_TIME_TRACKER_VIEW, (leaf) => new TaskTimeTrackerView(leaf))
+		this.registerView(TASK_TIME_TRACKER_VIEW, (leaf) => new TaskTimeTrackerView(leaf, this))
+
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TaskTimeTrackerSettingTab(this.app, this));
 
@@ -64,7 +65,6 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		leaf = this.app.workspace.getRightLeaf(false);
 		leaf!.setViewState({
 			type: TASK_TIME_TRACKER_VIEW,
-
 		});
 
 		this.app.workspace.revealLeaf(leaf!);

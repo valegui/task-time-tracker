@@ -1,9 +1,15 @@
-import { ItemView, Setting } from "obsidian";
-
+import { ItemView, Setting, WorkspaceLeaf } from "obsidian";
+import TaskTimeTrackerPlugin from "./main";
 export const TASK_TIME_TRACKER_VIEW = "task-time-tracker-view";
 
 export class TaskTimeTrackerView extends ItemView {
-    icon = 'lucide-clipboard-list';
+    plugin: TaskTimeTrackerPlugin;
+    icon: string = 'lucide-clipboard-list';
+
+    constructor(leaf: WorkspaceLeaf, plugin: TaskTimeTrackerPlugin) {
+        super(leaf);
+        this.plugin = plugin;
+    }
 
     getViewType(): string {
         return TASK_TIME_TRACKER_VIEW;
