@@ -24,7 +24,7 @@ function changeTaskProject(task: Task, project: string): Task {
     return task;
 }
 
-function newTask(name?: string, category?: string, project?: string): Task {
+function newTimerTask(name?: string, category?: string, project?: string): Task {
     if (typeof name == 'undefined') {
         name = Math.random().toString(30).slice(2, 20);
     }
@@ -34,6 +34,20 @@ function newTask(name?: string, category?: string, project?: string): Task {
         startTime: startTime,
         endTime: null,
         duration: null,
+        category,
+        project
+    };
+}
+
+function newManualTask(name: string, startTime: string, endTime: string, category?: string, project?: string): Task {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    let duration = (end.getTime() - start.getTime()).toString();
+    return {
+        name,
+        startTime,
+        endTime,
+        duration,
         category,
         project
     };
@@ -66,10 +80,16 @@ function trackerStopCurrentTask(tracker: TaskTracker): boolean {
     return true;
 }
 
-function trackerNewTask(tracker: TaskTracker, name?: string, category?: string, project?: string): Task {
+function trackerNewTimerTask(tracker: TaskTracker, name?: string, category?: string, project?: string): Task {
     trackerStopCurrentTask(tracker);
-    let task = newTask(name, category, project);
+    let task = newTimerTask(name, category, project);
     tracker.currentTask = task;
+    return task;
+}
+
+function trackerNewManualTask(tracker: TaskTracker, name: string, startTime: string, endTime: string, category?: string, project?: string): Task {
+    let task = newManualTask(name, startTime, endTime, category, project);
+    tracker.tasks.push(task);
     return task;
 }
 
