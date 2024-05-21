@@ -46,7 +46,7 @@ function stopTask(task: Task | undefined): Task {
     let endTime = Date.now().toString();
     task.endTime = endTime;
     let duration = (Number(task.endTime) - Number(task.startTime)).toString();
-    task.duration = endTime;
+    task.duration = duration;
     return task;
 }
 
@@ -72,3 +72,11 @@ function trackerNewTask(tracker: TaskTracker, name?: string, category?: string, 
     tracker.currentTask = task;
     return task;
 }
+
+function trackerGetCategories(tracker: TaskTracker): string[] {
+    return ['to do'];
+}
+
+function trackerGetProjects(tracker: TaskTracker): string[] {
+    return ['to do'];
+} 
