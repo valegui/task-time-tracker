@@ -94,9 +94,25 @@ function trackerNewManualTask(tracker: TaskTracker, name: string, startTime: str
 }
 
 function trackerGetCategories(tracker: TaskTracker): string[] {
-    return ['to do'];
+    const categories = new Set<string>();
+
+    tracker.tasks.forEach(item => {
+        if (item["category"] !== undefined) {
+            categories.add(item["category"]);
+        }
+    });
+
+    return Array.from(categories);
 }
 
 function trackerGetProjects(tracker: TaskTracker): string[] {
-    return ['to do'];
+    const projects = new Set<string>();
+
+    tracker.tasks.forEach(item => {
+        if (item["category"] !== undefined) {
+            projects.add(item["category"]);
+        }
+    });
+
+    return Array.from(projects);
 } 
