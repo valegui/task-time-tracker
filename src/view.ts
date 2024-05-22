@@ -4,7 +4,6 @@ export const TASK_TIME_TRACKER_VIEW = "task-time-tracker-view";
 
 export class TaskTimeTrackerView extends ItemView {
     plugin: TaskTimeTrackerPlugin;
-    icon: string = 'lucide-clipboard-list';
 
     constructor(leaf: WorkspaceLeaf, plugin: TaskTimeTrackerPlugin) {
         super(leaf);
@@ -19,17 +18,21 @@ export class TaskTimeTrackerView extends ItemView {
         return "Task Time Tracker";
     }
 
+    getIcon(): string {
+        return 'lucide-clipboard-list'
+    }
+
     async onOpen() {
         const { contentEl } = this;
         contentEl.empty();
         contentEl.createEl("h2", { text: "Controls" });
-
+        contentEl.createEl("h3", { text: "Current Task" });
         new Setting(contentEl)
             .setName("Stop Current Task")
             .addButton(item => { item.setButtonText("Stop") });
 
-        contentEl.createEl("h3", { text: "Current Task" });
         contentEl.createEl("h3", { text: "Past Tasks" });
+        contentEl.createEl("p", { text: "This week's tasks." });
         contentEl.createEl("h3", { text: "Weekly Report" });
 
     }
