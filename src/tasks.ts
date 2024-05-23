@@ -80,14 +80,14 @@ function trackerStopCurrentTask(tracker: TaskTracker): boolean {
     return true;
 }
 
-function trackerNewTimerTask(tracker: TaskTracker, name?: string, category?: string, project?: string): Task {
+export function trackerNewTimerTask(tracker: TaskTracker, name?: string, category?: string, project?: string): Task {
     trackerStopCurrentTask(tracker);
     let task = newTimerTask(name, category, project);
     tracker.currentTask = task;
     return task;
 }
 
-function trackerNewManualTask(tracker: TaskTracker, name: string, startTime: string, endTime: string, category?: string, project?: string): Task {
+export function trackerNewManualTask(tracker: TaskTracker, name: string, startTime: string, endTime: string, category?: string, project?: string): Task {
     let task = newManualTask(name, startTime, endTime, category, project);
     tracker.tasks.push(task);
     return task;
