@@ -17,6 +17,17 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
         containerEl.createEl("h2", { text: "Task Time Tracker - Settings" })
 
         new Setting(containerEl)
+            .setName("Tracker File")
+            .setDesc("File used to contain and show tracker")
+            .addText(file => file
+                .setValue(this.plugin.settings.trackerFile)
+                .onChange(async value => {
+                    this.plugin.settings.trackerFile = value;
+                    await this.plugin.saveSettings();
+                })
+            );
+
+        new Setting(containerEl)
             .setName("Week start")
             .setDesc("Day of the week the summary starts from")
             .addDropdown(c => c
