@@ -25,16 +25,14 @@ export class TaskTimeTrackerView extends ItemView {
     async onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.createEl("h2", { text: "Controls" });
-        contentEl.createEl("h3", { text: "Current Task" });
+        contentEl.createEl("h3", { text: "Task Time Tracker" });
+        contentEl.createEl("h4", { text: "Tasks" });
         new Setting(contentEl)
-            .setName("Stop Current Task")
-            .addButton(item => { item.setButtonText("Stop") });
-
-        contentEl.createEl("h3", { text: "Past Tasks" });
-        contentEl.createEl("p", { text: "This week's tasks." });
-        contentEl.createEl("h3", { text: "Weekly Report" });
-
+            .setName("Add Manual Task")
+            .addButton(item => { item.setButtonText("New") });
+        new Setting(contentEl)
+            .setName("Start Tracking Task")
+            .addButton(item => { item.setButtonText("Start") });
     }
 
     onunload(): void {
