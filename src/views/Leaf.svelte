@@ -9,25 +9,26 @@
   <h2 class="title">Task Tracker</h2>
   <hr class="divider">
 
-  <h3 class="title">Time</h3>
-  <dl class="text" style="margin: 0 20px 20px 5px;">
-    <dt> Add manual time </dt>
-    <dt> Start timer </dt>
-    <dt> Stop timer </dt>
-  </dl>
-  
-  <h3 class="title">Categories</h3>
-  <dl class="text" style="margin: 0 20px 20px 5px;">
-    <dt> See current categories </dt>
-    <dt> Add category </dt>
-  </dl>
+  <div style="margin-left:5px;">
+    <h3 class="title">Time</h3>
+    <dl class="text" style="margin: 0 20px 20px 5px;">
+      <dt> Add manual time </dt>
+      <dt> Start timer </dt>
+      <dt> Stop timer </dt>
+    </dl>
+    
+    <h3 class="title">Categories</h3>
+    <dl class="text" style="margin: 0 20px 20px 5px;">
+      <dt> See current categories </dt>
+      <dt> Add category </dt>
+    </dl>
 
-  <h3 class="title">Projects</h3>
-  <dl class="text" style="margin: 0 20px 20px 5px;">
-    <dt> See current projects </dt>
-    <dt> Add project </dt>
-  </dl>
-
+    <h3 class="title">Projects</h3>
+    <dl class="text" style="margin: 0 20px 20px 5px;">
+      <dt> See current projects </dt>
+      <dt> Add project </dt>
+    </dl>
+  </div>
 </div>
 
 <style>
@@ -43,7 +44,7 @@
     border-top: 0.5px solid var(--hr-color);
     border-bottom: none;
     height: 1px;
-    margin: 0 0 8px 0;
+    margin: 0 0 15px 0;
   }
 
   .text {
