@@ -36,7 +36,7 @@ const context = await esbuild.context({
 		...builtins],
 	plugins: [
 		esbuildSvelte({
-			compilerOptions: { css: true },
+			compilerOptions: { css: "injected" },
 			preprocess: sveltePreprocess(),
 		})],
 	format: "cjs",

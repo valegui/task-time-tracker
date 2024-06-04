@@ -1,13 +1,13 @@
 import { ItemView, Setting, WorkspaceLeaf } from "obsidian";
-import TaskTimeTrackerPlugin from "./main";
+import LeafComponent from "./views/Leaf.svelte"
+
 export const TASK_TIME_TRACKER_VIEW = "task-time-tracker-view";
 
 export class TaskTimeTrackerView extends ItemView {
-    plugin: TaskTimeTrackerPlugin;
+    leafComponent!: LeafComponent;
 
-    constructor(leaf: WorkspaceLeaf, plugin: TaskTimeTrackerPlugin) {
+    constructor(leaf: WorkspaceLeaf) {
         super(leaf);
-        this.plugin = plugin;
     }
 
     getViewType(): string {
@@ -22,17 +22,17 @@ export class TaskTimeTrackerView extends ItemView {
         return 'lucide-clipboard-list'
     }
 
-    async onOpen() {
-        const { contentEl } = this;
-        contentEl.empty();
-        contentEl.createEl("h3", { text: "Task Time Tracker" });
-        contentEl.createEl("h4", { text: "Tasks" });
-        new Setting(contentEl)
-            .setName("Add Manual Task")
-            .addButton(item => { item.setButtonText("New") });
-        new Setting(contentEl)
-            .setName("Start Tracking Task")
-            .addButton(item => { item.setButtonText("Start") });
+    async onOpen(): Promise<void> {
+        this.leafComponent = new LeafComponent({
+            target: this.contentEl,
+            props: {
+                variable: 1
+            }
+        });
+    }
+
+    async onClose(): Promise<void> {
+        this.leafComponent.$destroy();
     }
 
     onunload(): void {
