@@ -12,7 +12,7 @@ export class FileSuggest extends AbstractInputSuggest<TFile> {
         const loadedFiles = this.app.vault.getMarkdownFiles();
         const lowerCaseInput = input.toLocaleLowerCase();
         let files = loadedFiles.filter((f) =>
-            f.path.contains(lowerCaseInput)
+            f.path.toLocaleLowerCase().contains(lowerCaseInput)
         );
         return files as TFile[];
     }
