@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import TaskTimeTrackerPlugin from "./main";
-import { DEFAULT_SETTINGS } from "./settings";
+import { FileSuggest } from "./suggest";
 
 export class TaskTimeTrackerSettingTab extends PluginSettingTab {
     plugin: TaskTimeTrackerPlugin;
@@ -15,16 +15,18 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
 
         containerEl.empty();
         containerEl.createEl("h2", { text: "Task Time Tracker - Settings" })
-
+        
         new Setting(containerEl)
             .setName("Tracker File")
             .setDesc("File used to contain and show tracker")
-            .addText(file => file
-                .setValue(this.plugin.settings.trackerFile)
-                .onChange(async value => {
+            .addText(file => {
+                new FileSuggest(this.app, file.inputEl);
+                file.setPlaceholder(this.plugin.settings.trackerFile);
+                file.setValue(this.plugin.settings.trackerFile);
+                file.onChange(async value => {
                     this.plugin.settings.trackerFile = value;
                     await this.plugin.saveSettings();
-                })
+                })}
             );
 
         new Setting(containerEl)
