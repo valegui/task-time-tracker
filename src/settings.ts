@@ -6,7 +6,7 @@ export interface TaskTimeTrackerSettings {
 }
 
 export const DEFAULT_SETTINGS: TaskTimeTrackerSettings = {
-	trackerFile: 'Tracker.md',
+	trackerFile: '',
 	weekStart: 'Monday',
 	category: true,
 	project: true,
