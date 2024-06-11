@@ -10,11 +10,17 @@
   <hr class="divider">
 
   <div style="margin-left:5px;">
-    <div class="text">
-    <h3 class="title">Add manual time</h3>
-      <form action="new-manual-time" method="POST">
-        <div class="form-horizontal">
+    <div class="text" style="margin-bottom: 20px;">
+      <h2 class="title">Timer</h2>
+      <div class="button-horizontal">
+        <button class="button-style"> Start Timer </button> 
+        <button class="button-style"> Stop Timer </button> 
+      </div>
+      <form action="new-manual-time" method="POST" class="form-horizontal">
+        <div>
           <label for="taskname" class="form-label"> Task name </label>
+        </div>
+        <div>  
           <input
             type="text"
             name="taskname"
@@ -23,26 +29,10 @@
             placeholder="Task name"
           />
         </div>
-        <div class="form-horizontal">
-          <label for="starttime" class="form-label">Start Time</label>
-          <input
-            type="datetime-local"
-            name="starttime"
-            class="form-input"
-            id="starttime"
-          />
-        </div>
-        <div class="form-horizontal">
-          <label for="endtime" class="form-label">End Time</label>
-          <input
-            type="datetime-local"
-            name="endtime"
-            class="form-input"
-            id="endtime"
-          />
-        </div>
-        <div class="form-horizontal">
+        <div>
           <label for="categoryname" class="form-label"> Category </label>
+        </div>
+        <div>
           <input
             type="text"
             name="categoryname"
@@ -51,8 +41,10 @@
             placeholder="Category"
           />
         </div>
-        <div class="form-horizontal">
+        <div>
           <label for="projectname" class="form-label"> Project </label>
+        </div>
+        <div>
           <input
             type="text"
             name="projectname"
@@ -61,16 +53,78 @@
             placeholder="Project"
           />
         </div>
+      </form>
 
-        <div style = "display: flex; justify-content:flex-end">
+    </div>
+
+    <div class="text" style="margin-top:20px;">
+      <h2 class="title" style="margin-bottom:20px;">Add manual time</h2>
+      <form action="new-manual-time" method="POST">
+        <div class="form-horizontal">
+          <div>
+            <label for="taskname" class="form-label"> Task name </label>
+          </div>
+          <div>  
+            <input
+              type="text"
+              name="taskname"
+              id="taskname"
+              class="form-input"
+              placeholder="Task name"
+            />
+          </div>
+          <div>
+            <label for="starttime" class="form-label">Start Time</label>
+          </div>
+          <div>
+            <input
+              type="datetime-local"
+              name="starttime"
+              class="form-input"
+              id="starttime"
+            />
+          </div>
+          <div>
+            <label for="endtime" class="form-label">End Time</label>
+          </div>
+          <div> 
+            <input
+              type="datetime-local"
+              name="endtime"
+              class="form-input"
+              id="endtime"
+            />
+          </div>
+          <div>
+            <label for="categoryname" class="form-label"> Category </label>
+          </div>
+          <div>
+            <input
+              type="text"
+              name="categoryname"
+              id="categoryname"
+              class="form-input"
+              placeholder="Category"
+            />
+          </div>
+          <div>
+            <label for="projectname" class="form-label"> Project </label>
+          </div>
+          <div>
+            <input
+              type="text"
+              name="projectname"
+              id="projectname"
+              class="form-input"
+              placeholder="Project"
+            />
+          </div>
+        </div>  
+        <div style="display:flex; align-items:right; justify-content:flex-end">
           <button class="button-style">Add Task</button>
         </div>
       </form>
     </div>
-    <h3 class="title">Start timer</h3>
-
-    <h3 class="title">Stop timer</h3>
-
   </div>
 </div>
 
@@ -101,23 +155,19 @@
 
   .form-label {
     display: block;
+    font-size: var(--table-text-size);
     margin-bottom: 5px;
     margin-top: 10px;
   }
 
   .form-input {
     width: 100%;
-  }
-
-  .input-flex {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+    font-size: var(--table-text-size);
   }
 
   .form-horizontal {
     display:grid;
-    grid-template-columns: 30% 1fr;
+    grid-template-columns: max-content 1fr;
     grid-gap:5px;
     margin-top: 5px;
   }
@@ -127,6 +177,13 @@
     margin-top: 15px;
     margin-bottom: 15px;
   }
-
+  
+  .button-horizontal{
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: max-content max-content;
+    align-items: center;
+    justify-content: center;
+  }
 
 </style>
