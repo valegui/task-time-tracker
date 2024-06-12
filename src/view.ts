@@ -1,5 +1,6 @@
-import { ItemView, Setting, WorkspaceLeaf } from "obsidian";
-import LeafComponent from "./views/Leaf.svelte"
+import { ItemView, WorkspaceLeaf } from "obsidian";
+import LeafComponent from "./views/Leaf.svelte";
+import { trackerNewManualTask, trackerNewTimerTask, trackerStopCurrentTask, trackerEditTask, trackerEditCurrentTask, isRunning } from "./tasks";
 
 export const TASK_TIME_TRACKER_VIEW = "task-time-tracker-view";
 

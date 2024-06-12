@@ -1,7 +1,5 @@
 <script lang="ts">
-  let svelteUrl = "https://svelte.dev/";
-  let tailwindcssUrl = "https://tailwindcss.com/";
-  let input: string = "";
+  import { TaskTimeTrackerSettings } from "src/settings";
 </script>
 
 <div class="general">
@@ -92,6 +90,7 @@
               onfocus="(this.type='datetime-local')"
               onblur="if(!this.value) this.type='text'"
               placeholder="&#9716;"
+              required
             />
           </div>
           <div class="form-label">
@@ -107,6 +106,7 @@
               onfocus="(this.type='datetime-local')"
               onblur="if(!this.value) this.type='text'"
               placeholder="&#9716;"
+              required
             />
           </div>
           <div class="form-label">

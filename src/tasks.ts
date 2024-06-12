@@ -14,6 +14,14 @@ export interface Task {
     project?: string;
 }
 
+export function loadTaskTracker(trackerFile: string): TaskTracker {
+    if (trackerFile == '') {
+        return {tasks: []};
+    }
+    return {tasks: []};
+}
+
+
 function changeTaskCategory(task: Task, category: string): Task {
     task.category = category;
     return task;
@@ -64,12 +72,12 @@ function stopTask(task: Task | undefined): Task {
     return task;
 }
 
-function isRunning(tracker: TaskTracker): boolean {
+export function isRunning(tracker: TaskTracker): boolean {
     if (typeof tracker.currentTask == 'undefined') return false;
     return true;
 }
 
-function trackerStopCurrentTask(tracker: TaskTracker): boolean {
+export function trackerStopCurrentTask(tracker: TaskTracker): boolean {
     if (!isRunning(tracker)) {
         return false;
     }
@@ -115,4 +123,12 @@ function trackerGetProjects(tracker: TaskTracker): string[] {
     });
 
     return Array.from(projects);
-} 
+}
+
+export function trackerEditCurrentTask(tracker: TaskTracker, name?: string, category?: string, project?: string): void {
+
+}
+
+export function trackerEditTask(tracker: TaskTracker, task: Task): void {
+
+}

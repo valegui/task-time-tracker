@@ -20,6 +20,33 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TaskTimeTrackerSettingTab(this.app, this));
 
+		this.loadCommandPalette();
+
+	}
+	
+
+	onunload() {
+	}
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
+
+	openView() {
+		this.app.workspace.detachLeavesOfType(TASK_TIME_TRACKER_VIEW);
+		let leaf: WorkspaceLeaf | null = null;
+		leaf = this.app.workspace.getRightLeaf(false);
+		leaf!.setViewState({
+			type: TASK_TIME_TRACKER_VIEW,
+		});
+		this.app.workspace.revealLeaf(leaf!);
+	}
+
+	loadCommandPalette() {
 		// Command palette
 		this.addCommand({
 			id: 'start-empty-task',
@@ -56,27 +83,6 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 				return false;
 			}
 		})
-	}
-
-	onunload() {
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-
-	openView() {
-		this.app.workspace.detachLeavesOfType(TASK_TIME_TRACKER_VIEW);
-		let leaf: WorkspaceLeaf | null = null;
-		leaf = this.app.workspace.getRightLeaf(false);
-		leaf!.setViewState({
-			type: TASK_TIME_TRACKER_VIEW,
-		});
-		this.app.workspace.revealLeaf(leaf!);
 	}
 
 	async showTrackerFile() {
