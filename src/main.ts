@@ -1,7 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian';
 import { TaskTimeTrackerSettings, DEFAULT_SETTINGS } from './settings';
 import { TaskTimeTrackerSettingTab } from './settings-tab';
-import { TASK_TIME_TRACKER_VIEW, TaskTimeTrackerView } from './view';
 
 export default class TaskTimeTrackerPlugin extends Plugin {
 	settings: TaskTimeTrackerSettings = DEFAULT_SETTINGS;
@@ -9,19 +8,15 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('clipboard-list', 'Show Task Time Tracker', () => {
-			this.openView();
-		});
-
-		// This adds view for contents of the plugin
-		this.registerView(TASK_TIME_TRACKER_VIEW, (leaf) => new TaskTimeTrackerView(leaf))
-
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TaskTimeTrackerSettingTab(this.app, this));
 
-		this.loadCommandPalette();
+		// This creates an icon in the left ribbon.
+		this.addRibbonIcon('clipboard-list', 'Task Time Tracker File', () => {
+			this.openView();
+		});
 
+		this.loadCommandPalette();
 	}
 	
 
@@ -36,14 +31,34 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	openView() {
-		this.app.workspace.detachLeavesOfType(TASK_TIME_TRACKER_VIEW);
-		let leaf: WorkspaceLeaf | null = null;
-		leaf = this.app.workspace.getRightLeaf(false);
-		leaf!.setViewState({
-			type: TASK_TIME_TRACKER_VIEW,
-		});
-		this.app.workspace.revealLeaf(leaf!);
+	async openView() {
+		const settings = this.settings as TaskTimeTrackerSettings;
+		if (settings.trackerFile == "") {
+			new Notice("Task Time Tracker: no file is set as the tracker file.");
+			return;
+		}
+		// File is active
+		let activeFileName = this.app.workspace.activeEditor?.file?.name;
+		if (activeFileName && activeFileName == settings.trackerFile) {
+			return;
+		}
+		// Check if file is open in another tab
+		let trackerLeafOpen = false;
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			const viewState = leaf.getViewState();
+			if (viewState.state?.file?.endsWith(settings.trackerFile)) {
+				trackerLeafOpen = true;
+				this.app.workspace.setActiveLeaf(leaf);
+			}
+		})
+		if (trackerLeafOpen) {
+			return;
+		}
+		// Create new tab with the file open
+		let leaf = this.app.workspace.getLeaf('tab');
+		let file = this.app.vault.getFileByPath(settings.trackerFile);
+		await leaf.openFile(file as TFile, { active: true });
+		return;
 	}
 
 	loadCommandPalette() {
@@ -76,25 +91,13 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				if (this.settings.trackerFile != "") {
 					if (!checking) {
-						this.showTrackerFile();
+						this.openView();
 					}
 					return true;
 				}
 				return false;
 			}
 		})
-	}
-
-	async showTrackerFile() {
-		const settings = this.settings as TaskTimeTrackerSettings;
-		if (settings.trackerFile == "") {
-			new Notice("No file is set as the tracker file.")
-		}
-		else {
-			const leaf = this.app.workspace.getLeaf(false);
-			const file = this.app.vault.getFileByPath(settings.trackerFile);
-			await leaf.openFile(file as TFile, { active: true});
-		}
 	}
 }
 
