@@ -61,27 +61,27 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		return;
 	}
 
+	async startTask(): Promise<void> {
+		const vault = this.app.vault;
+		const settings = this.settings as TaskTimeTrackerSettings;
+		if (settings.trackerFile == "") {
+			new Notice("Task Time Tracker: no file is set as the tracker file.");
+			return;
+		}
+		const file = vault.getFileByPath(settings.trackerFile) as TFile;
+		const fileContent = await vault.read(file);
+		let newTask = "Task, " + new Date().toISOString() + ", End Time, Category, Project";
+		const newFileContent = `${fileContent}\n${newTask}`;
+		vault.modify(file, newFileContent);
+	}
+
 	loadCommandPalette() {
 		// Command palette
 		this.addCommand({
-			id: 'start-empty-task',
-			name: 'Start Empty Task',
-			callback() {
-			}
-		})
-
-		this.addCommand({
 			id: 'start-task',
 			name: 'Start Task',
-			callback() {
-			}
-		})
-
-		this.addCommand({
-			id: 'end-current-task',
-			name: 'End Current Task',
-			checkCallback: (checking: boolean) => {
-				return false;
+			callback: () => {
+				this.startTask();
 			}
 		})
 
