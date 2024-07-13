@@ -1,6 +1,7 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, TFile, WorkspaceLeaf } from 'obsidian';
+import { Notice, Plugin, TFile } from 'obsidian';
 import { TaskTimeTrackerSettings, DEFAULT_SETTINGS } from './settings';
 import { TaskTimeTrackerSettingTab } from './settings-tab';
+import { startTrackerTimerTask } from './tasks';
 
 export default class TaskTimeTrackerPlugin extends Plugin {
 	settings: TaskTimeTrackerSettings = DEFAULT_SETTINGS;
@@ -19,7 +20,6 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		this.loadCommandPalette();
 	}
 	
-
 	onunload() {
 	}
 
@@ -61,27 +61,14 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		return;
 	}
 
-	async startTask(): Promise<void> {
-		const vault = this.app.vault;
-		const settings = this.settings as TaskTimeTrackerSettings;
-		if (settings.trackerFile == "") {
-			new Notice("Task Time Tracker: no file is set as the tracker file.");
-			return;
-		}
-		const file = vault.getFileByPath(settings.trackerFile) as TFile;
-		const fileContent = await vault.read(file);
-		let newTask = "Task, " + new Date().toISOString() + ", End Time, Category, Project";
-		const newFileContent = `${fileContent}\n${newTask}`;
-		vault.modify(file, newFileContent);
-	}
-
 	loadCommandPalette() {
+		const vault = this.app.vault;
 		// Command palette
 		this.addCommand({
 			id: 'start-task',
 			name: 'Start Task',
 			callback: () => {
-				this.startTask();
+				startTrackerTimerTask(vault, this.settings.trackerFile);
 			}
 		})
 
