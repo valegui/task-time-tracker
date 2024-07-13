@@ -1,7 +1,7 @@
 import { Notice, Plugin, TFile } from 'obsidian';
 import { TaskTimeTrackerSettings, DEFAULT_SETTINGS } from './settings';
 import { TaskTimeTrackerSettingTab } from './settings-tab';
-import { startTrackerTimerTask } from './tasks';
+import { startTrackerTimerTask, trackerTaskRunning } from './tasks';
 
 export default class TaskTimeTrackerPlugin extends Plugin {
 	settings: TaskTimeTrackerSettings = DEFAULT_SETTINGS;
@@ -70,6 +70,20 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			callback: () => {
 				startTrackerTimerTask(vault, this.settings.trackerFile);
 			}
+		})
+
+		this.addCommand({
+			id:'task-running',
+			name:'Is there a task running?',
+			callback: async () => {
+				let running = await trackerTaskRunning(vault, this.settings.trackerFile);
+				console.log(running);
+				if (running) {
+					new Notice("Task running");
+				} else {
+					new Notice("No Task running");
+				}
+			},
 		})
 
 		this.addCommand({

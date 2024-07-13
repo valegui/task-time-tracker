@@ -9,6 +9,15 @@ export interface Task {
     project?: string;
 }
 
+const TASK_ERROR: Task = {
+    name: Error("name"),
+    startTime: Error("startTime"),
+    endTime: Error("endTime"),
+    duration: Error("duration"),
+    category: Error("category"),
+    project: Error("project")
+}
+
 function formatWriteTask(task: Task): string {
     // ass function,
     let endTime = "";
@@ -20,16 +29,36 @@ function formatWriteTask(task: Task): string {
     if (task.category != undefined) category = task.category;
     if (task.project != undefined) project = task.project;
     return `${task.name},${task.startTime},${endTime},${duration},${category},${project}`;
-
 }
 
 function formatReadTask(taskString: string): Task {
-    return {
-        name: "",
-        startTime: "",
-        endTime: "",
-        duration: ""
+    // another ass function, dont ask, may change l8r
+    const taskFieldList = taskString.split(",");
+    if (taskFieldList.length != 6){
+        console.log("Not a task");
+        return TASK_ERROR;
+    } 
+    
+    let endTime = null;
+    if (taskFieldList[2] != "") endTime = taskFieldList[2];
+    let duration = null;
+    if (taskFieldList[3] != "") duration = taskFieldList[3];
+    
+    let task : Task = {
+        name: taskFieldList[0],
+        startTime: taskFieldList[1],
+        endTime: endTime,
+        duration: duration
     };
+
+    if (taskFieldList[4] != ""){
+        task.category = taskFieldList[4];
+    } 
+    if (taskFieldList[5] != "") {
+        task.project = taskFieldList[5];
+    }
+
+    return task;
 }
 
 export async function startTrackerTimerTask(vault: Vault, trackerFile: string, name?: string, category?: string, project?: string){
@@ -43,7 +72,7 @@ export async function startTrackerTimerTask(vault: Vault, trackerFile: string, n
     let trackerContent = await vault.read(tracker);
     const newTask = newTimerTask(name, category, project);
     const taskString = formatWriteTask(newTask);
-	const newTrackerContent = `${trackerContent}\n${taskString}`;
+	const newTrackerContent = `${taskString}\n${trackerContent}`;
 	vault.modify(tracker, newTrackerContent);
 }
 
@@ -85,4 +114,33 @@ function stopTask(task: Task | undefined): Task {
     let duration = (Number(task.endTime) - Number(task.startTime)).toString();
     task.duration = duration;
     return task;
+}
+
+export async function trackerTaskRunning(vault: Vault, trackerFile: string) {
+    if (trackerFile == "") {
+        new Notice(
+            "No file is set as Task Time Tracker file."
+        );
+        return false;
+    }
+    const tracker = vault.getFileByPath(trackerFile) as TFile;
+    const trackerContent = await vault.read(tracker);
+    const trackerTasks = trackerContent.split("\n");
+    for (let i = 0; i < trackerTasks.length; i++){
+        let task = formatReadTask(trackerTasks[i]);
+        if (taskIsRunning(task)){
+            return true;
+        }
+    }
+    return false;
+}
+
+function taskIsRunning(task: Task): boolean {
+    if (task == TASK_ERROR){
+        return false;
+    }
+    if (task.endTime != null || task.endTime != "") {
+        return true;
+    }
+    return false;
 }
