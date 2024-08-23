@@ -1,5 +1,5 @@
 import { Notice, Plugin, TFile } from 'obsidian';
-import { TaskTimeTrackerSettings, DEFAULT_SETTINGS } from './settings';
+import { DEFAULT_SETTINGS, TaskTimeTrackerSettings } from './settings';
 import { TaskTimeTrackerSettingTab } from './settings-tab';
 import { startTrackerTimerTask, trackerTaskRunning } from './tasks';
 
@@ -13,13 +13,15 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		this.addSettingTab(new TaskTimeTrackerSettingTab(this.app, this));
 
 		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('clipboard-list', 'Task Time Tracker File', () => {
-			this.openView();
-		});
+    if (this.settings.showOpenTracker) {
+      this.addRibbonIcon('clipboard-list', 'Task Time Tracker File', () => {
+        this.openView();
+      });
+    }
 
 		this.loadCommandPalette();
 	}
-	
+
 	onunload() {
 	}
 
@@ -38,7 +40,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			return;
 		}
 		// File is active
-		let activeFileName = this.app.workspace.activeEditor?.file?.name;
+		const activeFileName = this.app.workspace.activeEditor?.file?.name;
 		if (activeFileName && activeFileName == settings.trackerFile) {
 			return;
 		}
@@ -55,8 +57,8 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			return;
 		}
 		// Create new tab with the file open
-		let leaf = this.app.workspace.getLeaf('tab');
-		let file = this.app.vault.getFileByPath(settings.trackerFile);
+		const leaf = this.app.workspace.getLeaf('tab');
+		const file = this.app.vault.getFileByPath(settings.trackerFile);
 		await leaf.openFile(file as TFile, { active: true });
 		return;
 	}
@@ -76,7 +78,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			id:'task-running',
 			name:'Is there a task running?',
 			callback: async () => {
-				let running = await trackerTaskRunning(vault, this.settings.trackerFile);
+				const running = await trackerTaskRunning(vault, this.settings.trackerFile);
 				console.log(running);
 				if (running) {
 					new Notice("Task running");
@@ -101,5 +103,3 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		})
 	}
 }
-
-
