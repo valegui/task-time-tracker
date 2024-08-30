@@ -50,7 +50,7 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Category")
-      .setDesc("Show the category of the task")
+      .setDesc("Show the category of the task.")
       .addToggle((state) =>
         state
           .setValue(this.plugin.settings.category)
@@ -62,7 +62,7 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Project")
-      .setDesc("Show the project the task is from")
+      .setDesc("Show the project the task is from.")
       .addToggle((state) =>
         state.setValue(this.plugin.settings.project).onChange(async (value) => {
           this.plugin.settings.project = value;
@@ -72,7 +72,9 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Tracker icon")
-      .setDesc("Show icon to open tracker file")
+      .setDesc(
+        "Show icon to open tracker file. Reaload the plugin to display changes.",
+      )
       .addToggle((state) =>
         state
           .setValue(this.plugin.settings.showOpenTracker)
