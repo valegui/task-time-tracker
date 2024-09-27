@@ -2,7 +2,11 @@ import { Notice, Plugin, TFile } from "obsidian";
 import { TaskModal } from "./modals";
 import { DEFAULT_SETTINGS, TaskTimeTrackerSettings } from "./settings";
 import { TaskTimeTrackerSettingTab } from "./settings-tab";
-import { startTrackerTimerTask, trackerTaskRunning } from "./tasks";
+import {
+  startTrackerTimerTask,
+  stopLastTrackerTask,
+  trackerTaskRunning,
+} from "./tasks";
 
 export default class TaskTimeTrackerPlugin extends Plugin {
   settings: TaskTimeTrackerSettings = DEFAULT_SETTINGS;
@@ -95,6 +99,14 @@ export default class TaskTimeTrackerPlugin extends Plugin {
       name: "Start Task",
       callback: () => {
         startTrackerTimerTask(vault, this.settings.trackerFile);
+      },
+    });
+
+    this.addCommand({
+      id: "stop-task",
+      name: "Stop Task",
+      callback: () => {
+        stopLastTrackerTask(vault, this.settings.trackerFile);
       },
     });
 
