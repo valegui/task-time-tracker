@@ -1,11 +1,11 @@
 {
-	"id": "task-time-tracker",
-	"name": "Task Time Tracker",
-	"version": "0.1.0",
-	"minAppVersion": "0.15.0",
-	"description": "Track Time of each task in one or various projects, with weekly time spent for each project.",
-	"author": "Valeria Guidotti",
-	"authorUrl": "https://github.com/valegui",
-	"fundingUrl": "https://github.com/valegui",
-	"isDesktopOnly": true
+  "id": "task-time-tracker",
+  "name": "Task Time Tracker",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "Track Time of each task in one or various projects, with weekly time spent for each project.",
+  "author": "Valeria Guidotti",
+  "authorUrl": "https://github.com/valegui",
+  "fundingUrl": "https://github.com/valegui",
+  "isDesktopOnly": false
 }
