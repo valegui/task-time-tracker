@@ -138,7 +138,10 @@ function taskIsRunning(task: Task): boolean {
   if (task == TASK_ERROR) {
     return false;
   }
-  if (task.endTime != null || task.endTime != "") {
+  if (task.endTime == "") {
+    return true;
+  }
+  if (task.endTime == null) {
     return true;
   }
   return false;
