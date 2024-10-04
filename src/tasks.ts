@@ -56,6 +56,27 @@ export async function stopLastTrackerTask(vault: Vault, trackerFile: string) {
   vault.modify(tracker, newTrackerContent);
 }
 
+export async function createManualTrackerTask(
+  vault: Vault,
+  trackerFile: string,
+  name: string,
+  startTime: string,
+  endTime: string,
+  category?: string,
+  project?: string,
+) {
+  if (trackerFile == "") {
+    new Notice("No file is set as Task Time Tracker file.");
+    return;
+  }
+  const tracker = vault.getFileByPath(trackerFile) as TFile;
+  const trackerContent = await vault.read(tracker);
+  const newTask = newManualTask(name, startTime, endTime, category, project);
+  const taskString = formatWriteTask(newTask);
+  const newTrackerContent = `${taskString}\n${trackerContent}`;
+  vault.modify(tracker, newTrackerContent);
+}
+
 export async function trackerTaskRunning(vault: Vault, trackerFile: string) {
   // get the list of task and
   if (trackerFile == "") {
@@ -100,9 +121,9 @@ function newManualTask(
   category?: string,
   project?: string,
 ): Task {
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-  const duration = (end.getTime() - start.getTime()).toString();
+  const start = new Date(startTime).getTime().toString();
+  const end = new Date(endTime).getTime().toString();
+  const duration = (parseInt(end) - parseInt(start)).toString();
   return {
     name,
     startTime,
