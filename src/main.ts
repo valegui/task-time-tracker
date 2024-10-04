@@ -77,18 +77,28 @@ export default class TaskTimeTrackerPlugin extends Plugin {
         new TaskModal(
           this.app,
           (
-            taskName: string,
-            taskCategory: string,
-            taskProject: string,
+           taskData
           ): void => {
-            new Notice(`Starting task: ${taskName}`);
-            startTrackerTimerTask(
-              vault,
-              this.settings.trackerFile,
-              taskName,
-              taskCategory,
-              taskProject,
-            );
+            new Notice(`Starting task: ${taskData.taskName}`);
+            if (taskData.endTime == null) {
+              startTrackerTimerTask(
+                vault,
+                this.settings.trackerFile,
+                taskData.taskName,
+                taskData.taskCategory,
+                taskData.taskProject,
+              );
+            } else {
+              createManualTrackerTask(
+                vault,
+                this.settings.trackerFile,
+                taskData.taskName,
+                taskData.taskCategory,
+                taskData.taskProject,
+                taskData.startTime,
+                taskData.endTime
+              );
+            }
           },
         ).open();
       },
