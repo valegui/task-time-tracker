@@ -88,7 +88,7 @@
         <label for="expandToggle">
             <input type="checkbox" id="expandToggle" bind:checked={expanded} />
             <span class="slider"></span>
-            Add Time
+            Manual Time
         </label>
     </div>
 

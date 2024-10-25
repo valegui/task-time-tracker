@@ -3,6 +3,7 @@ import { TaskModal } from "./modals";
 import { DEFAULT_SETTINGS, TaskTimeTrackerSettings } from "./settings";
 import { TaskTimeTrackerSettingTab } from "./settings-tab";
 import {
+  createManualTrackerTask,
   startTrackerTimerTask,
   stopLastTrackerTask,
   trackerTaskRunning,
@@ -74,33 +75,28 @@ export default class TaskTimeTrackerPlugin extends Plugin {
       id: "add-timed-task",
       name: "Create Task",
       callback: () => {
-        new TaskModal(
-          this.app,
-          (
-           taskData
-          ): void => {
-            new Notice(`Starting task: ${taskData.taskName}`);
-            if (taskData.endTime == null) {
-              startTrackerTimerTask(
-                vault,
-                this.settings.trackerFile,
-                taskData.taskName,
-                taskData.taskCategory,
-                taskData.taskProject,
-              );
-            } else {
-              createManualTrackerTask(
-                vault,
-                this.settings.trackerFile,
-                taskData.taskName,
-                taskData.taskCategory,
-                taskData.taskProject,
-                taskData.startTime,
-                taskData.endTime
-              );
-            }
-          },
-        ).open();
+        new TaskModal(this.app, (taskData): void => {
+          new Notice(`Starting task: ${taskData.taskName}`);
+          if (taskData.endTime == null) {
+            startTrackerTimerTask(
+              vault,
+              this.settings.trackerFile,
+              taskData.taskName,
+              taskData.taskCategory,
+              taskData.taskProject,
+            );
+          } else {
+            createManualTrackerTask(
+              vault,
+              this.settings.trackerFile,
+              taskData.taskName,
+              taskData.startTime,
+              taskData.endTime,
+              taskData.taskCategory,
+              taskData.taskProject,
+            );
+          }
+        }).open();
       },
     });
 
