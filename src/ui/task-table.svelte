@@ -87,6 +87,9 @@
         width: 100%;
         border-collapse: collapse;
         margin: 1rem 0;
+        border-color: var(--table-border-color);
+        border-width: var(--table-border-width);
+        background-color: var(--table-background-color);
     }
 
     th,
@@ -94,6 +97,7 @@
         padding: 0.5rem;
         text-align: left;
         border-bottom: 1px solid var(--background-modifier-border);
+        font-size: var(--table-text-size);
     }
 
     td {
@@ -101,7 +105,8 @@
     }
 
     th {
-        background-color: var(--background-secondary-alt);
-        font-weight: bold;
+        background-color: var(--table-header-background);
+        font-family: var(--table-header-font);
+        font-weight: var(--table-header-weight);
     }
 </style>
