@@ -25,18 +25,29 @@ export async function startTrackerTimerTask(
   category?: string,
   project?: string,
 ) {
-  // get tracker file and content
-  // create a new task
-  //
-  if (trackerFile == "") {
-    new Notice("No file is set as Task Time Tracker file.");
-    return;
-  }
   const tracker = vault.getFileByPath(trackerFile) as TFile;
   const trackerContent = await vault.read(tracker);
+
+  // Find first code block of type task-time-tracker
+  const codeBlockRegex = /```task-time-tracker\n([\s\S]*?)```/;
+  const match = trackerContent.match(codeBlockRegex);
+
+  if (!match) {
+    new Notice("No task-time-tracker code block found");
+    return;
+  }
+
+  const codeBlockContent = match[1];
   const newTask = newTimerTask(name, category, project);
   const taskString = formatWriteTask(newTask);
-  const newTrackerContent = `${taskString}\n${trackerContent}`;
+
+  // Replace code block content with updated content
+  const newCodeBlockContent = `${taskString}\n${codeBlockContent}`;
+  const newTrackerContent = trackerContent.replace(
+    match[0],
+    "```task-time-tracker\n" + newCodeBlockContent + "```",
+  );
+
   vault.modify(tracker, newTrackerContent);
 }
 
@@ -71,9 +82,27 @@ export async function createManualTrackerTask(
   }
   const tracker = vault.getFileByPath(trackerFile) as TFile;
   const trackerContent = await vault.read(tracker);
+
+  // Find first code block of type task-time-tracker
+  const codeBlockRegex = /```task-time-tracker\n([\s\S]*?)```/;
+  const match = trackerContent.match(codeBlockRegex);
+
+  if (!match) {
+    new Notice("No task-time-tracker code block found");
+    return;
+  }
+
+  const codeBlockContent = match[1];
   const newTask = newManualTask(name, startTime, endTime, category, project);
   const taskString = formatWriteTask(newTask);
-  const newTrackerContent = `${taskString}\n${trackerContent}`;
+
+  // Replace code block content with updated content
+  const newCodeBlockContent = `${taskString}\n${codeBlockContent}`;
+  const newTrackerContent = trackerContent.replace(
+    match[0],
+    "```task-time-tracker\n" + newCodeBlockContent + "```",
+  );
+
   vault.modify(tracker, newTrackerContent);
 }
 
@@ -180,7 +209,7 @@ function formatWriteTask(task: Task): string {
   if (task.duration != null) duration = task.duration;
   if (task.category != undefined) category = task.category;
   if (task.project != undefined) project = task.project;
-  return `${task.name} | ${task.startTime} | ${endTime} | ${duration} | ${category}  | ${project}`;
+  return `${task.name} | ${task.startTime} | ${endTime} | ${duration} | ${category} | ${project}`;
 }
 
 function formatReadTask(taskString: string): Task {
