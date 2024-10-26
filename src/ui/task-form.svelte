@@ -38,12 +38,14 @@
             hours !== undefined &&
             minutes !== undefined
         ) {
-            return moment()
+            const new_moment = moment()
                 .year(year)
                 .month(month - 1)
                 .date(day)
                 .hours(hours)
-                .minutes(minutes);
+                .minutes(minutes)
+                .seconds(0);
+            return new_moment;
         }
         return null;
     }
@@ -115,7 +117,11 @@
 
     <div class="button-group">
         <button on:click={onCancel}>Cancel</button>
-        <button class="button-submit" on:click={handleSubmit}>Submit</button>
+        {#if expanded}
+            <button class="button-submit" on:click={handleSubmit}>Add</button>
+        {:else}
+            <button class="button-submit" on:click={handleSubmit}>Start</button>
+        {/if}
     </div>
 </div>
 

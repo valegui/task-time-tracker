@@ -1,4 +1,4 @@
-import { Notice, TFile, Vault } from "obsidian";
+import { moment, Notice, TFile, Vault } from "obsidian";
 
 export interface Task {
   name: string;
@@ -103,7 +103,7 @@ function newTimerTask(
   if (typeof name == "undefined") {
     name = Math.random().toString(30).slice(2, 20);
   }
-  const startTime = Date.now().toString();
+  const startTime = moment().unix().toString();
   return {
     name: name,
     startTime: startTime,
@@ -121,16 +121,17 @@ function newManualTask(
   category?: string,
   project?: string,
 ): Task {
-  const start = new Date(startTime).getTime().toString();
-  const end = new Date(endTime).getTime().toString();
+  new Notice(startTime);
+  const start = Math.floor(new Date(startTime).getTime() / 1000).toString();
+  const end = Math.floor(new Date(endTime).getTime() / 1000).toString();
   const duration = (parseInt(end) - parseInt(start)).toString();
   return {
-    name,
-    startTime,
-    endTime,
-    duration,
-    category,
-    project,
+    name: name,
+    startTime: start,
+    endTime: end,
+    duration: duration,
+    category: category,
+    project: project,
   };
 }
 
