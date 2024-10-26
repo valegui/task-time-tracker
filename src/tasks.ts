@@ -25,7 +25,18 @@ export async function startTrackerTimerTask(
   category?: string,
   project?: string,
 ) {
-  const tracker = vault.getFileByPath(trackerFile) as TFile;
+  if (trackerFile == "") {
+    new Notice("No file is set as Task Time Tracker file.");
+    return;
+  }
+  // Get the file from the vault
+  const tracker = vault.getAbstractFileByPath(trackerFile);
+
+  if (!(tracker instanceof TFile)) {
+    throw new Error(`File not found: ${trackerFile}`);
+  }
+
+  // Read file content
   const trackerContent = await vault.read(tracker);
 
   // Find first code block of type task-time-tracker
@@ -80,7 +91,14 @@ export async function createManualTrackerTask(
     new Notice("No file is set as Task Time Tracker file.");
     return;
   }
-  const tracker = vault.getFileByPath(trackerFile) as TFile;
+  // Get the file from the vault
+  const tracker = vault.getAbstractFileByPath(trackerFile);
+
+  if (!(tracker instanceof TFile)) {
+    throw new Error(`File not found: ${trackerFile}`);
+  }
+
+  // Read file content
   const trackerContent = await vault.read(tracker);
 
   // Find first code block of type task-time-tracker
@@ -150,7 +168,6 @@ function newManualTask(
   category?: string,
   project?: string,
 ): Task {
-  new Notice(startTime);
   const start = Math.floor(new Date(startTime).getTime() / 1000).toString();
   const end = Math.floor(new Date(endTime).getTime() / 1000).toString();
   const duration = (parseInt(end) - parseInt(start)).toString();
