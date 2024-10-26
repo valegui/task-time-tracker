@@ -2,12 +2,14 @@ import { Notice, Plugin, TFile } from "obsidian";
 import { TaskModal } from "./modals";
 import { DEFAULT_SETTINGS, TaskTimeTrackerSettings } from "./settings";
 import { TaskTimeTrackerSettingTab } from "./settings-tab";
+import type { Task } from "./tasks";
 import {
   createManualTrackerTask,
   startTrackerTimerTask,
   stopLastTrackerTask,
   trackerTaskRunning,
 } from "./tasks";
+import TaskTable from "./ui/task-table.svelte";
 
 export default class TaskTimeTrackerPlugin extends Plugin {
   settings: TaskTimeTrackerSettings = DEFAULT_SETTINGS;
@@ -17,6 +19,10 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new TaskTimeTrackerSettingTab(this.app, this));
+
+    // This registers a markdown post processor that takes a task time tracker code
+    // block and shows it as table
+    this.addMarkdownPostprocessor();
 
     // This creates an icon in the left ribbon.
     if (this.settings.showOpenTracker) {
@@ -32,6 +38,47 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  addMarkdownPostprocessor() {
+    this.registerMarkdownCodeBlockProcessor(
+      "task-time-tracker",
+      (source, el, ctx) => {
+        try {
+          // Split the source into lines and filter out empty lines
+          const rows = source
+            .split("\n")
+            .filter((row) => row.trim().length > 0);
+
+          // Parse the CSV-like data into Task objects
+          const data: Task[] = rows.map((row) => {
+            const [name, startTime, endTime, duration, category, project] = row
+              .split("|")
+              .map((cell) => cell.trim());
+
+            return {
+              name,
+              startTime,
+              endTime: endTime === "-" ? null : endTime,
+              duration: duration === "-" ? null : duration,
+              category: category === "-" ? undefined : category,
+              project: project === "-" ? undefined : project,
+            };
+          });
+
+          // Create and mount the Svelte component
+          new TaskTable({
+            target: el,
+            props: {
+              data,
+            },
+          });
+        } catch (error) {
+          console.error("Error processing timeline table:", error);
+          el.createEl("div", { text: "Error processing timeline data" });
+        }
+      },
+    );
   }
 
   async saveSettings() {
