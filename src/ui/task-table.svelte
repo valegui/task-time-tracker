@@ -6,6 +6,39 @@
     function formatValue(value: string | null | undefined): string {
         return value ?? "-";
     }
+
+    // Format timestamp to ISO8601
+    function formatTimestamp(timestamp: string | null | undefined): string {
+        if (!timestamp) return "-";
+        try {
+            // Convert seconds to milliseconds and create Date object
+            const date = new Date(Number(timestamp) * 1000);
+            return date.toISOString();
+        } catch (error) {
+            return "-";
+        }
+    }
+
+    // Format duration from seconds to HH:MM:SS
+    function formatDuration(seconds: string | null | undefined): string {
+        if (!seconds) return "-";
+        try {
+            const totalSeconds = Number(seconds);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const remainingSeconds = Math.floor(totalSeconds % 60);
+
+            const parts = [];
+            if (hours > 0) parts.push(`${hours}h`);
+            if (minutes > 0) parts.push(`${minutes}m`);
+            if (remainingSeconds > 0 || parts.length === 0)
+                parts.push(`${remainingSeconds}s`);
+
+            return parts.join(" ");
+        } catch (error) {
+            return "-";
+        }
+    }
 </script>
 
 <div class="timeline-table">
@@ -24,9 +57,9 @@
             {#each data as task}
                 <tr>
                     <td>{task.name}</td>
-                    <td>{task.startTime}</td>
-                    <td>{formatValue(task.endTime)}</td>
-                    <td>{formatValue(task.duration)}</td>
+                    <td>{formatTimestamp(task.startTime)}</td>
+                    <td>{formatTimestamp(task.endTime)}</td>
+                    <td>{formatDuration(task.duration)}</td>
                     <td>{formatValue(task.category)}</td>
                     <td>{formatValue(task.project)}</td>
                 </tr>
