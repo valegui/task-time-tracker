@@ -180,13 +180,13 @@ function formatWriteTask(task: Task): string {
   if (task.duration != null) duration = task.duration;
   if (task.category != undefined) category = task.category;
   if (task.project != undefined) project = task.project;
-  return `${task.name},${task.startTime},${endTime},${duration},${category},${project}`;
+  return `${task.name} | ${task.startTime} | ${endTime} | ${duration} | ${category}  | ${project}`;
 }
 
 function formatReadTask(taskString: string): Task {
   // another ass function
   // from a string (line in the tracker file) parse a task
-  const taskFieldList = taskString.split(",");
+  const taskFieldList = taskString.split(" | ");
   if (taskFieldList.length != 6) {
     console.log("Not a task");
     return TASK_ERROR;
