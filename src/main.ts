@@ -6,7 +6,7 @@ import type { Task } from "./tasks";
 import {
   createManualTrackerTask,
   startTrackerTimerTask,
-  stopLastTrackerTask,
+  stopRunningTrackerTask,
   trackerTaskRunning,
 } from "./tasks";
 import TaskTable from "./ui/task-table.svelte";
@@ -159,7 +159,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
       id: "stop-task",
       name: "Stop Task",
       callback: () => {
-        stopLastTrackerTask(vault, this.settings.trackerFile);
+        stopRunningTrackerTask(vault, this.settings.trackerFile);
       },
     });
 

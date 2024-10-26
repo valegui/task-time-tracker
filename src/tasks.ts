@@ -18,50 +18,6 @@ const TASK_ERROR: Task = {
   project: Error("project"),
 };
 
-export async function startTrackerTimerTask(
-  vault: Vault,
-  trackerFile: string,
-  name?: string,
-  category?: string,
-  project?: string,
-) {
-  if (trackerFile == "") {
-    new Notice("No file is set as Task Time Tracker file.");
-    return;
-  }
-  // Get the file from the vault
-  const tracker = vault.getAbstractFileByPath(trackerFile);
-
-  if (!(tracker instanceof TFile)) {
-    throw new Error(`File not found: ${trackerFile}`);
-  }
-
-  // Read file content
-  const trackerContent = await vault.read(tracker);
-
-  // Find first code block of type task-time-tracker
-  const codeBlockRegex = /```task-time-tracker\n([\s\S]*?)```/;
-  const match = trackerContent.match(codeBlockRegex);
-
-  if (!match) {
-    new Notice("No task-time-tracker code block found");
-    return;
-  }
-
-  const codeBlockContent = match[1];
-  const newTask = newTimerTask(name, category, project);
-  const taskString = formatWriteTask(newTask);
-
-  // Replace code block content with updated content
-  const newCodeBlockContent = `${taskString}\n${codeBlockContent}`;
-  const newTrackerContent = trackerContent.replace(
-    match[0],
-    "```task-time-tracker\n" + newCodeBlockContent + "```",
-  );
-
-  vault.modify(tracker, newTrackerContent);
-}
-
 export async function stopLastTrackerTask(vault: Vault, trackerFile: string) {
   if (trackerFile == "") {
     new Notice("No file is set as Task Time Tracker file.");
@@ -78,6 +34,77 @@ export async function stopLastTrackerTask(vault: Vault, trackerFile: string) {
   vault.modify(tracker, newTrackerContent);
 }
 
+async function getTrackerCodeBlock(
+  vault: Vault,
+  trackerFile: string,
+): Promise<[TFile, string, string, RegExpMatchArray]> {
+  if (trackerFile == "") {
+    throw new Error("No file is set as Task Time Tracker file.");
+  }
+
+  const tracker = vault.getAbstractFileByPath(trackerFile);
+  if (!(tracker instanceof TFile)) {
+    throw new Error(`File not found: ${trackerFile}`);
+  }
+
+  const trackerContent = await vault.read(tracker);
+  const codeBlockRegex = /```task-time-tracker\n([\s\S]*?)```/;
+  const match = trackerContent.match(codeBlockRegex);
+
+  if (!match) {
+    throw new Error("No task-time-tracker code block found");
+  }
+
+  return [tracker, trackerContent, match[1], match];
+}
+
+async function updateTrackerContent(
+  vault: Vault,
+  tracker: TFile,
+  match: RegExpMatchArray,
+  taskString: string,
+  codeBlockContent: string,
+) {
+  let newCodeBlockContent = "";
+  if (taskString != "") {
+    newCodeBlockContent = `${taskString}\n${codeBlockContent}`;
+  } else {
+    newCodeBlockContent = `${codeBlockContent}`;
+  }
+  const newTrackerContent = match.input.replace(
+    match[0],
+    "```task-time-tracker\n" + newCodeBlockContent + "```",
+  );
+  await vault.modify(tracker, newTrackerContent);
+}
+
+export async function startTrackerTimerTask(
+  vault: Vault,
+  trackerFile: string,
+  name?: string,
+  category?: string,
+  project?: string,
+) {
+  try {
+    const [tracker, _, codeBlockContent, match] = await getTrackerCodeBlock(
+      vault,
+      trackerFile,
+    );
+    const newTask = newTimerTask(name, category, project);
+    const taskString = formatWriteTask(newTask);
+    await updateTrackerContent(
+      vault,
+      tracker,
+      match,
+      taskString,
+      codeBlockContent,
+    );
+  } catch (error) {
+    new Notice(error.message);
+    return;
+  }
+}
+
 export async function createManualTrackerTask(
   vault: Vault,
   trackerFile: string,
@@ -87,45 +114,97 @@ export async function createManualTrackerTask(
   category?: string,
   project?: string,
 ) {
-  if (trackerFile == "") {
-    new Notice("No file is set as Task Time Tracker file.");
+  try {
+    const [tracker, _, codeBlockContent, match] = await getTrackerCodeBlock(
+      vault,
+      trackerFile,
+    );
+    const newTask = newManualTask(name, startTime, endTime, category, project);
+    const taskString = formatWriteTask(newTask);
+    await updateTrackerContent(
+      vault,
+      tracker,
+      match,
+      taskString,
+      codeBlockContent,
+    );
+  } catch (error) {
+    new Notice(error.message);
     return;
   }
-  // Get the file from the vault
-  const tracker = vault.getAbstractFileByPath(trackerFile);
+}
 
-  if (!(tracker instanceof TFile)) {
-    throw new Error(`File not found: ${trackerFile}`);
+export async function trackerHasTaskRunning(
+  vault: Vault,
+  trackerFile: string,
+): Promise<boolean> {
+  try {
+    const [, , codeBlockContent] = await getTrackerCodeBlock(
+      vault,
+      trackerFile,
+    );
+    const codeBlockTasks = codeBlockContent.split("\n");
+    for (let i = 0; i < codeBlockTasks.length; i++) {
+      const task = formatReadTask(codeBlockTasks[i]);
+      if (taskIsRunning(task)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    new Notice(error.message);
+    return false;
   }
+}
 
-  // Read file content
-  const trackerContent = await vault.read(tracker);
+function trackerLastTaskRunning(tasks: string[]): Task | null {
+  for (let i = 0; i < tasks.length; i++) {
+    console.log(tasks[i]);
+    const task = formatReadTask(tasks[i]);
+    if (taskIsRunning(task)) {
+      console.log("Returning task");
+      return task;
+    }
+  }
+  return null;
+}
 
-  // Find first code block of type task-time-tracker
-  const codeBlockRegex = /```task-time-tracker\n([\s\S]*?)```/;
-  const match = trackerContent.match(codeBlockRegex);
+export async function stopRunningTrackerTask(
+  vault: Vault,
+  trackerFile: string,
+) {
+  try {
+    const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
+      vault,
+      trackerFile,
+    );
+    const tasks = codeBlockContent.split("\n");
+    const runningTask = trackerLastTaskRunning(tasks);
 
-  if (!match) {
-    new Notice("No task-time-tracker code block found");
+    if (runningTask) {
+      const stoppedTask = stopTask(runningTask);
+      const taskString = formatWriteTask(stoppedTask);
+      const updatedContent = codeBlockContent.replace(
+        tasks[
+          tasks.indexOf(
+            tasks.find(
+              (t) =>
+                formatReadTask(t).name == runningTask.name &&
+                formatReadTask(t).startTime == runningTask.startTime,
+            ),
+          )
+        ],
+        taskString,
+      );
+      await updateTrackerContent(vault, tracker, match, "", updatedContent);
+    }
+  } catch (error) {
+    new Notice(error.message);
     return;
   }
-
-  const codeBlockContent = match[1];
-  const newTask = newManualTask(name, startTime, endTime, category, project);
-  const taskString = formatWriteTask(newTask);
-
-  // Replace code block content with updated content
-  const newCodeBlockContent = `${taskString}\n${codeBlockContent}`;
-  const newTrackerContent = trackerContent.replace(
-    match[0],
-    "```task-time-tracker\n" + newCodeBlockContent + "```",
-  );
-
-  vault.modify(tracker, newTrackerContent);
 }
 
 export async function trackerTaskRunning(vault: Vault, trackerFile: string) {
-  // get the list of task and
   if (trackerFile == "") {
     new Notice("No file is set as Task Time Tracker file.");
     return false;
@@ -185,7 +264,7 @@ function stopTask(task: Task | undefined): Task {
   if (typeof task == "undefined") {
     throw new TypeError("The input must be a Task");
   }
-  const endTime = Date.now().toString();
+  const endTime = moment().unix().toString();
   task.endTime = endTime;
   const duration = (Number(task.endTime) - Number(task.startTime)).toString();
   task.duration = duration;
@@ -193,8 +272,6 @@ function stopTask(task: Task | undefined): Task {
 }
 
 function getLastTaskAndContent(trackerContent: string): [Task, string] {
-  // from the content, split it and return the last line (first line) as task
-  // and the rest of the content as a string
   const lines: string[] = trackerContent.split(/\r?\n/);
   const lastTask: Task = formatReadTask(lines[0]);
   lines.shift();
@@ -216,45 +293,51 @@ function taskIsRunning(task: Task): boolean {
 }
 
 function formatWriteTask(task: Task): string {
-  // ass function
-  // get the string to write the task
-  let endTime = "";
-  let duration = "";
-  let category = "";
-  let project = "";
-  if (task.endTime != null) endTime = task.endTime;
-  if (task.duration != null) duration = task.duration;
-  if (task.category != undefined) category = task.category;
-  if (task.project != undefined) project = task.project;
+  if (!task || !task.name || !task.startTime) {
+    throw new Error("Invalid task: missing required fields");
+  }
+
+  const endTime = task.endTime ?? "";
+  const duration = task.duration ?? "";
+  const category = task.category ?? "";
+  const project = task.project ?? "";
+
   return `${task.name} | ${task.startTime} | ${endTime} | ${duration} | ${category} | ${project}`;
 }
 
 function formatReadTask(taskString: string): Task {
-  // another ass function
-  // from a string (line in the tracker file) parse a task
+  if (!taskString) {
+    throw new Error("Empty task string provided");
+  }
+
   const taskFieldList = taskString.split(" | ");
-  if (taskFieldList.length != 6) {
-    console.log("Not a task");
+
+  if (taskFieldList.length !== 6) {
+    console.error("Invalid task format: expected 6 fields");
     return TASK_ERROR;
   }
 
-  let endTime = null;
-  if (taskFieldList[2] != "") endTime = taskFieldList[2];
-  let duration = null;
-  if (taskFieldList[3] != "") duration = taskFieldList[3];
+  const [name, startTime, endTimeRaw, durationRaw, categoryRaw, projectRaw] =
+    taskFieldList;
+
+  if (!name || !startTime) {
+    console.error("Invalid task: missing required fields");
+    return TASK_ERROR;
+  }
 
   const task: Task = {
-    name: taskFieldList[0],
-    startTime: taskFieldList[1],
-    endTime: endTime,
-    duration: duration,
+    name,
+    startTime,
+    endTime: endTimeRaw || null,
+    duration: durationRaw || null,
   };
 
-  if (taskFieldList[4] != "") {
-    task.category = taskFieldList[4];
+  if (categoryRaw) {
+    task.category = categoryRaw;
   }
-  if (taskFieldList[5] != "") {
-    task.project = taskFieldList[5];
+
+  if (projectRaw) {
+    task.project = projectRaw;
   }
 
   return task;
