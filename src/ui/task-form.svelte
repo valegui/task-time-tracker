@@ -12,7 +12,7 @@
     let startTime = "";
     let endDate = "";
     let endTime = "";
-    let expanded = false;
+    let activeTab = "timed"; // "timed" or "manual"
 
     function handleSubmit() {
         const startMoment = createMoment(startDate, startTime);
@@ -52,11 +52,21 @@
 </script>
 
 <div class="task-form">
-    {#if expanded}
-        <h1>Register Task</h1>
-    {:else}
-        <h1>Start Tracking Task</h1>
-    {/if}
+    <h1>Create Tracked Task</h1>
+    <div class="tabs">
+        <button
+            class:active={activeTab === "timed"}
+            on:click={() => (activeTab = "timed")}
+        >
+            Timed Task
+        </button>
+        <button
+            class:active={activeTab === "manual"}
+            on:click={() => (activeTab = "manual")}
+        >
+            Manual Task
+        </button>
+    </div>
 
     <div class="form-group">
         <label for="taskName">Name</label>
@@ -86,15 +96,7 @@
         />
     </div>
 
-    <div class="toggle-switch">
-        <label for="expandToggle">
-            <input type="checkbox" id="expandToggle" bind:checked={expanded} />
-            <span class="slider"></span>
-            Manual Time
-        </label>
-    </div>
-
-    {#if expanded}
+    {#if activeTab === "manual"}
         <div class="time-inputs">
             <div class="form-group">
                 <label for="startDate">Start Date</label>
@@ -117,7 +119,7 @@
 
     <div class="button-group">
         <button on:click={onCancel}>Cancel</button>
-        {#if expanded}
+        {#if activeTab === "manual"}
             <button class="button-submit" on:click={handleSubmit}>Add</button>
         {:else}
             <button class="button-submit" on:click={handleSubmit}>Start</button>
@@ -131,6 +133,30 @@
         flex-direction: column;
         gap: 10px;
         font: var(--font-text-theme);
+    }
+
+    .tabs {
+        display: flex;
+        gap: 1px;
+        margin-bottom: 15px;
+        background-color: var(--background-secondary-alt);
+        border-radius: var(--input-radius);
+        padding: 2px;
+    }
+
+    .tabs button {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: var(--input-radius);
+        transition: background-color 0.3s;
+    }
+
+    .tabs button.active {
+        background-color: var(--link-external-color);
+        color: var(--text-normal);
     }
 
     .form-group {
@@ -165,54 +191,5 @@
     .button-submit {
         background-color: var(--link-external-color);
         border-color: var(--color-base-00);
-    }
-
-    .toggle-switch {
-        display: flex;
-        align-items: center;
-        margin: 10px 0;
-    }
-
-    .toggle-switch label {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .slider {
-        position: relative;
-        display: inline-block;
-        width: 40px;
-        height: 20px;
-        background-color: var(--color-base-100);
-        border-radius: 20px;
-        margin-right: 10px;
-        transition: 0.4s;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        border-radius: 50%;
-        transition: 0.4s;
-    }
-
-    input:checked + .slider {
-        background-color: var(--link-external-color);
-    }
-
-    input:checked + .slider:before {
-        transform: translateX(20px);
     }
 </style>
