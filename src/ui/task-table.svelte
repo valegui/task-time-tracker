@@ -7,13 +7,23 @@
         return value ?? "-";
     }
 
-    // Format timestamp to ISO8601
+    // Format timestamp to YYYY-mm-dd HH:MM:SS
     function formatTimestamp(timestamp: string | null | undefined): string {
         if (!timestamp) return "-";
         try {
             // Convert seconds to milliseconds and create Date object
             const date = new Date(Number(timestamp) * 1000);
-            return date.toISOString();
+            return date
+                .toLocaleString("en-CA", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                })
+                .replace(",", "");
         } catch (error) {
             return "-";
         }
@@ -41,7 +51,7 @@
     }
 </script>
 
-<div class="timeline-table">
+<div class="task-table">
     <table>
         <thead>
             <tr>
@@ -69,8 +79,8 @@
 </div>
 
 <style>
-    .timeline-table {
-        overflow-x: auto;
+    .task-table {
+        overflow-x: scroll;
     }
 
     table {
@@ -83,19 +93,15 @@
     td {
         padding: 0.5rem;
         text-align: left;
-        border: 1px solid #ddd;
+        border-bottom: 1px solid var(--background-modifier-border);
+    }
+
+    td {
+        overflow-x: scroll;
     }
 
     th {
-        background-color: #f5f5f5;
+        background-color: var(--background-secondary-alt);
         font-weight: bold;
-    }
-
-    tr:nth-child(even) {
-        background-color: #fafafa;
-    }
-
-    tr:hover {
-        background-color: #f0f0f0;
     }
 </style>
