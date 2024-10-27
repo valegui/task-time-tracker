@@ -71,6 +71,24 @@ export class TaskTimeTrackerSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Task table length")
+      .setDesc(
+        "Number of lines that will visible in the table table that contains tasks. If the tracker has more lines than this number, the table will be vertically scrollable. Reload the plugin to display changes.",
+      )
+      .addText((number) => {
+        number
+          .setValue(String(this.plugin.settings.tableLength))
+          .setPlaceholder("Enter a whole number")
+          .onChange(async (value) => {
+            const parsed = parseInt(value);
+            if (!isNaN(parsed)) {
+              this.plugin.settings.tableLength = parsed;
+              await this.plugin.saveSettings();
+            }
+          });
+      });
+
+    new Setting(containerEl)
       .setName("Tracker icon")
       .setDesc(
         "Show icon to open tracker file. Reaload the plugin to display changes.",

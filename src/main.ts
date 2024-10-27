@@ -66,11 +66,15 @@ export default class TaskTimeTrackerPlugin extends Plugin {
             };
           });
 
+          // Get table length
+          const tableLength = this.settings.tableLength;
+
           // Create and mount the Svelte component
           new TaskTable({
             target: el,
             props: {
               data,
+              tableLength,
             },
           });
         } catch (error) {

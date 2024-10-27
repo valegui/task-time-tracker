@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Task } from "./tasks";
     export let data: Task[] = [];
+    export let tableLength = 50;
 
     // Helper function to handle null/undefined values
     function formatValue(value: string | null | undefined): string {
@@ -51,7 +52,7 @@
     }
 </script>
 
-<div class="task-table">
+<div class="task-table" style="max-height: {tableLength * 2.3}rem;">
     <table>
         <thead>
             <tr>
@@ -80,13 +81,14 @@
 
 <style>
     .task-table {
-        overflow-x: scroll;
+        overflow-x: auto;
+        overflow-y: auto;
+        position: relative;
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
-        margin: 1rem 0;
         border-color: var(--table-border-color);
         border-width: var(--table-border-width);
         background-color: var(--table-background-color);
@@ -101,7 +103,7 @@
     }
 
     td {
-        overflow-x: scroll;
+        overflow-x: auto;
     }
 
     th {

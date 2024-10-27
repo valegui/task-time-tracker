@@ -4,6 +4,7 @@ export interface TaskTimeTrackerSettings {
   category: boolean;
   project: boolean;
   showOpenTracker: boolean;
+  tableLength: number;
 }
 
 export const DEFAULT_SETTINGS: TaskTimeTrackerSettings = {
@@ -12,4 +13,5 @@ export const DEFAULT_SETTINGS: TaskTimeTrackerSettings = {
   category: true,
   project: true,
   showOpenTracker: true,
+  tableLength: 50,
 };
