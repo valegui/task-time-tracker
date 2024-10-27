@@ -18,22 +18,6 @@ const TASK_ERROR: Task = {
   project: Error("project"),
 };
 
-export async function stopLastTrackerTask(vault: Vault, trackerFile: string) {
-  if (trackerFile == "") {
-    new Notice("No file is set as Task Time Tracker file.");
-    return;
-  }
-  const tracker = vault.getFileByPath(trackerFile) as TFile;
-  const trackerContent = await vault.read(tracker);
-  let [lastTask, content] = getLastTaskAndContent(trackerContent);
-  if (taskIsRunning(lastTask)) {
-    lastTask = stopTask(lastTask);
-  }
-  const taskString = formatWriteTask(lastTask);
-  const newTrackerContent = `${taskString}\n${content}`;
-  vault.modify(tracker, newTrackerContent);
-}
-
 async function getTrackerCodeBlock(
   vault: Vault,
   trackerFile: string,
@@ -76,9 +60,49 @@ async function updateTrackerContent(
     "```task-time-tracker\n" + newCodeBlockContent + "```",
   );
   await vault.modify(tracker, newTrackerContent);
+  return newTrackerContent;
 }
 
-export async function startTrackerTimerTask(
+export async function stopRunningTrackerTask(
+  vault: Vault,
+  trackerFile: string,
+) {
+  try {
+    const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
+      vault,
+      trackerFile,
+    );
+    const tasks = blockTaskList(codeBlockContent);
+    const runningTask = trackerLastTaskRunning(tasks);
+
+    if (runningTask) {
+      const stoppedTask = stopTask(runningTask);
+      const taskString = formatWriteTask(stoppedTask);
+      const foundTask = tasks.find(
+        (t) =>
+          formatReadTask(t).name === runningTask.name &&
+          formatReadTask(t).startTime === runningTask.startTime,
+      );
+      if (!foundTask) {
+        throw new Error("Could not find running task");
+      }
+      const updatedContent = codeBlockContent.replace(
+        foundTask,
+        taskString
+      );
+      await updateTrackerContent(vault, tracker, match, "", updatedContent);
+    }
+  } catch (err) {
+    if (err instanceof Error) {
+      new Notice(err.message);
+    } else {
+      new Notice('An unknown error occurred');
+    }
+    return;
+  }
+}
+
+export async function startTimerTrackerTask(
   vault: Vault,
   trackerFile: string,
   name?: string,
@@ -86,21 +110,47 @@ export async function startTrackerTimerTask(
   project?: string,
 ) {
   try {
-    const [tracker, _, codeBlockContent, match] = await getTrackerCodeBlock(
+    const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
       vault,
       trackerFile,
     );
+    // Check if other task is running
+    const tasks = blockTaskList(codeBlockContent);
+    const runningTask = trackerLastTaskRunning(tasks);
+    let updatedBlockContent = codeBlockContent;
+    // Stop the task that is running before starting a new one
+    if (runningTask) {
+      const stoppedTask = stopTask(runningTask);
+      const taskString = formatWriteTask(stoppedTask);
+      const foundTask = tasks.find(
+        (t) =>
+          formatReadTask(t).name === runningTask.name &&
+          formatReadTask(t).startTime === runningTask.startTime,
+      );
+      if (foundTask) {
+        updatedBlockContent = codeBlockContent.replace(
+          foundTask,
+          taskString
+        );
+      }
+    }
+    // Create new task
     const newTask = newTimerTask(name, category, project);
     const taskString = formatWriteTask(newTask);
+    // Update block of content
     await updateTrackerContent(
       vault,
       tracker,
       match,
       taskString,
-      codeBlockContent,
+      updatedBlockContent,
     );
   } catch (error) {
-    new Notice(error.message);
+    if (error instanceof Error) {
+      new Notice(error.message);
+    } else {
+      new Notice('An unknown error occurred');
+    }
     return;
   }
 }
@@ -143,14 +193,13 @@ export async function trackerHasTaskRunning(
       vault,
       trackerFile,
     );
-    const codeBlockTasks = codeBlockContent.split("\n");
-    for (let i = 0; i < codeBlockTasks.length; i++) {
-      const task = formatReadTask(codeBlockTasks[i]);
-      if (taskIsRunning(task)) {
-        return true;
-      }
+    const codeBlockTasks = blockTaskList(codeBlockContent);
+    const runningTask = trackerLastTaskRunning(codeBlockTasks);
+    if (runningTask){
+      return true;
+    } else {
+      return false;
     }
-    return false;
   } catch (error) {
     new Notice(error.message);
     return false;
@@ -159,66 +208,20 @@ export async function trackerHasTaskRunning(
 
 function trackerLastTaskRunning(tasks: string[]): Task | null {
   for (let i = 0; i < tasks.length; i++) {
-    console.log(tasks[i]);
     const task = formatReadTask(tasks[i]);
     if (taskIsRunning(task)) {
-      console.log("Returning task");
       return task;
     }
   }
   return null;
 }
 
-export async function stopRunningTrackerTask(
-  vault: Vault,
-  trackerFile: string,
-) {
-  try {
-    const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
-      vault,
-      trackerFile,
-    );
-    const tasks = codeBlockContent.split("\n");
-    const runningTask = trackerLastTaskRunning(tasks);
-
-    if (runningTask) {
-      const stoppedTask = stopTask(runningTask);
-      const taskString = formatWriteTask(stoppedTask);
-      const updatedContent = codeBlockContent.replace(
-        tasks[
-          tasks.indexOf(
-            tasks.find(
-              (t) =>
-                formatReadTask(t).name == runningTask.name &&
-                formatReadTask(t).startTime == runningTask.startTime,
-            ),
-          )
-        ],
-        taskString,
-      );
-      await updateTrackerContent(vault, tracker, match, "", updatedContent);
-    }
-  } catch (error) {
-    new Notice(error.message);
-    return;
+function blockTaskList(codeBlockContent: string) {
+  const codeBlockTasks = codeBlockContent.split("\n");
+  if (codeBlockTasks[codeBlockTasks.length - 1] === "") {
+    codeBlockTasks.pop();
   }
-}
-
-export async function trackerTaskRunning(vault: Vault, trackerFile: string) {
-  if (trackerFile == "") {
-    new Notice("No file is set as Task Time Tracker file.");
-    return false;
-  }
-  const tracker = vault.getFileByPath(trackerFile) as TFile;
-  const trackerContent = await vault.read(tracker);
-  const trackerTasks = trackerContent.split("\n");
-  for (let i = 0; i < trackerTasks.length; i++) {
-    const task = formatReadTask(trackerTasks[i]);
-    if (taskIsRunning(task)) {
-      return true;
-    }
-  }
-  return false;
+  return codeBlockTasks;
 }
 
 function newTimerTask(

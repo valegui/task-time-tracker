@@ -5,9 +5,9 @@ import { TaskTimeTrackerSettingTab } from "./settings-tab";
 import type { Task } from "./tasks";
 import {
   createManualTrackerTask,
-  startTrackerTimerTask,
+  startTimerTrackerTask,
   stopRunningTrackerTask,
-  trackerTaskRunning,
+  trackerHasTaskRunning,
 } from "./tasks";
 import TaskTable from "./ui/task-table.svelte";
 
@@ -125,7 +125,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
         new TaskModal(this.app, (taskData): void => {
           new Notice(`Starting task: ${taskData.taskName}`);
           if (taskData.endTime == null) {
-            startTrackerTimerTask(
+            startTimerTrackerTask(
               vault,
               this.settings.trackerFile,
               taskData.taskName,
@@ -151,7 +151,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
       id: "start-task",
       name: "Start Task",
       callback: () => {
-        startTrackerTimerTask(vault, this.settings.trackerFile);
+        startTimerTrackerTask(vault, this.settings.trackerFile);
       },
     });
 
@@ -167,11 +167,10 @@ export default class TaskTimeTrackerPlugin extends Plugin {
       id: "task-running",
       name: "Is there a task running?",
       callback: async () => {
-        const running = await trackerTaskRunning(
+        const running = await trackerHasTaskRunning(
           vault,
           this.settings.trackerFile,
         );
-        console.log(running);
         if (running) {
           new Notice("Task running");
         } else {
