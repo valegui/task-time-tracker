@@ -51,12 +51,9 @@
 	{#if task}
 		<div class="task-info">
 			<div class="task-name">{task.name}</div>
-			{#if task.category}
-				<div class="task-category">Category: {task.category}</div>
-			{/if}
-			{#if task.project}
-				<div class="task-project">Project: {task.project}</div>
-			{/if}
+			<div class="task-category-project">
+				{#if task.category}{task.category}{/if}{#if task.category && task.project}&#9642;{/if}{#if task.project}{task.project}{/if}
+			</div>
 			<div class="task-time">
 				<div class="task-started">
 					Started: {formatTimestamp(task.startTime)}
@@ -82,7 +79,12 @@
 	.task-view-container {
 		padding: 10px;
 		font-size: 14px;
-		border: 1px;
+	}
+
+	.task-info {
+		padding: var(--size-4-2);
+		padding-left: var(--size-4-4);
+		background-color: white;
 	}
 
 	.task-name {
@@ -90,13 +92,16 @@
 		margin-bottom: 5px;
 	}
 
-	.task-category,
-	.task-project,
+	.task-category-project,
 	.task-started,
 	.task-time-elapsed {
 		font-size: 12px;
 		color: var(--text-muted);
 		margin-bottom: 3px;
+	}
+
+	.task-category-project {
+		font-style: oblique;
 	}
 
 	.task-time {
