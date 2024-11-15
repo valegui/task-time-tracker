@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { Notice } from "obsidian";
 	import type { Task } from "../tasks";
 
 	export let task: Task | null;
 	export let duration: string | null;
+	export let stopTracker: () => void;
 
 	// Format duration from seconds to HH:MM:SS
 	function formatDuration(seconds: string | null | undefined): string {
@@ -23,6 +25,14 @@
 		} catch (error) {
 			return "-";
 		}
+	}
+	// Call the function when the button to stop task is clicked
+	function handleStopClick() {
+		stopTracker();
+	}
+
+	function handleCreateTask() {
+		new Notice("Start");
 	}
 </script>
 
@@ -47,9 +57,11 @@
 				{#if task.project}{task.project}{/if}
 			</div>
 		</div>
+		<button on:click={handleStopClick}>Stop Tracker</button>
 	{:else}
 		<div class="no-task">No task running</div>
 	{/if}
+	<button on:click={handleCreateTask}>Create Task</button>
 </div>
 
 <style>

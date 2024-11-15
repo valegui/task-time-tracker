@@ -32,7 +32,12 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 		// Register the view used in side leaf
 		this.registerView(
 			TASK_LEAF_VIEW_TYPE,
-			(leaf) => new TaskTimeTrackerLeafView(leaf),
+			(leaf) =>
+				new TaskTimeTrackerLeafView(
+					leaf,
+					this.app.vault,
+					this.settings.trackerFile,
+				),
 		);
 
 		// This creates an icon in the left ribbon.
