@@ -4,27 +4,6 @@
 	export let task: Task | null;
 	export let duration: string | null;
 
-	// Format timestamp to YYYY-mm-dd HH:MM:SS
-	function formatTimestamp(timestamp: string | null | undefined): string {
-		if (!timestamp) return "-";
-		try {
-			// Convert seconds to milliseconds and create Date object
-			const date = new Date(Number(timestamp) * 1000);
-			return date
-				.toLocaleString("en-CA", {
-					year: "numeric",
-					month: "2-digit",
-					day: "2-digit",
-					hour: "2-digit",
-					minute: "2-digit",
-					second: "2-digit",
-					hour12: false,
-				})
-				.replace(",", "");
-		} catch (error) {
-			return "-";
-		}
-	}
 	// Format duration from seconds to HH:MM:SS
 	function formatDuration(seconds: string | null | undefined): string {
 		if (!seconds) return "-";
@@ -34,13 +13,13 @@
 			const minutes = Math.floor((totalSeconds % 3600) / 60);
 			const remainingSeconds = Math.floor(totalSeconds % 60);
 
-			const parts = [];
-			if (hours > 0) parts.push(`${hours}h`);
-			if (minutes > 0) parts.push(`${minutes}m`);
-			if (remainingSeconds > 0 || parts.length === 0)
-				parts.push(`${remainingSeconds}s`);
+			const parts = ["00", "00", "00"];
+			if (hours > 0) parts[0] = hours.toString().padStart(2, "0");
+			if (minutes > 0) parts[1] = minutes.toString().padStart(2, "0");
+			if (remainingSeconds > 0)
+				parts[2] = remainingSeconds.toString().padStart(2, "0");
 
-			return parts.join(" ");
+			return parts.join(":");
 		} catch (error) {
 			return "-";
 		}
@@ -50,24 +29,22 @@
 <div class="task-view-container">
 	{#if task}
 		<div class="task-info">
+			{#if task.endTime}
+				Duration {formatDuration(task.duration)}
+			{:else}
+				<div class="task-time-elapsed">
+					{formatDuration(duration)}
+				</div>
+			{/if}
 			<div class="task-name">{task.name}</div>
 			<div class="task-category-project">
-				{#if task.category}{task.category}{/if}{#if task.category && task.project}&#9642;{/if}{#if task.project}{task.project}{/if}
-			</div>
-			<div class="task-time">
-				<div class="task-started">
-					Started: {formatTimestamp(task.startTime)}
-				</div>
-				{#if task.endTime}
-					<br />
-					Ended: {task.endTime}
-					<br />
-					Duration: {task.duration}
-				{:else}
-					<div class="task-time-elapsed">
-						Time elapsed: {formatDuration(duration)}
-					</div>
+				{#if task.category}
+					{task.category}
+					{#if task.project}
+						&#9642;
+					{/if}
 				{/if}
+				{#if task.project}{task.project}{/if}
 			</div>
 		</div>
 	{:else}
@@ -83,34 +60,27 @@
 
 	.task-info {
 		padding: var(--size-4-2);
-		padding-left: var(--size-4-4);
-		background-color: white;
 	}
 
 	.task-name {
-		font-weight: bold;
-		margin-bottom: 5px;
+		font-size: var(--font-text-size);
 	}
-
-	.task-category-project,
-	.task-started,
 	.task-time-elapsed {
-		font-size: 12px;
-		color: var(--text-muted);
+		font-size: var(--h3-size);
+		margin-bottom: var(--size-2-1);
+	}
+	.task-category-project {
+		font-size: var(--font-ui-smaller);
 		margin-bottom: 3px;
 	}
 
 	.task-category-project {
-		font-style: oblique;
-	}
-
-	.task-time {
-		font-size: 12px;
-		margin-top: 5px;
+		font-style: italic;
+		margin-bottom: var(--size-4-3);
 	}
 
 	.no-task {
-		color: var(--text-muted);
+		font-size: var(--font-text-size);
 		font-style: italic;
 	}
 </style>
