@@ -3,6 +3,48 @@
 
 	export let task: Task | null;
 	export let duration: string | null;
+
+	// Format timestamp to YYYY-mm-dd HH:MM:SS
+	function formatTimestamp(timestamp: string | null | undefined): string {
+		if (!timestamp) return "-";
+		try {
+			// Convert seconds to milliseconds and create Date object
+			const date = new Date(Number(timestamp) * 1000);
+			return date
+				.toLocaleString("en-CA", {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit",
+					second: "2-digit",
+					hour12: false,
+				})
+				.replace(",", "");
+		} catch (error) {
+			return "-";
+		}
+	}
+	// Format duration from seconds to HH:MM:SS
+	function formatDuration(seconds: string | null | undefined): string {
+		if (!seconds) return "-";
+		try {
+			const totalSeconds = Number(seconds);
+			const hours = Math.floor(totalSeconds / 3600);
+			const minutes = Math.floor((totalSeconds % 3600) / 60);
+			const remainingSeconds = Math.floor(totalSeconds % 60);
+
+			const parts = [];
+			if (hours > 0) parts.push(`${hours}h`);
+			if (minutes > 0) parts.push(`${minutes}m`);
+			if (remainingSeconds > 0 || parts.length === 0)
+				parts.push(`${remainingSeconds}s`);
+
+			return parts.join(" ");
+		} catch (error) {
+			return "-";
+		}
+	}
 </script>
 
 <div class="task-view-container">
@@ -16,15 +58,18 @@
 				<div class="task-project">Project: {task.project}</div>
 			{/if}
 			<div class="task-time">
-				Started: {task.startTime}
+				<div class="task-started">
+					Started: {formatTimestamp(task.startTime)}
+				</div>
 				{#if task.endTime}
 					<br />
 					Ended: {task.endTime}
 					<br />
 					Duration: {task.duration}
 				{:else}
-					<br />
-					Time elapsed: {duration}
+					<div class="task-time-elapsed">
+						Time elapsed: {formatDuration(duration)}
+					</div>
 				{/if}
 			</div>
 		</div>
@@ -37,6 +82,7 @@
 	.task-view-container {
 		padding: 10px;
 		font-size: 14px;
+		border: 1px;
 	}
 
 	.task-name {
@@ -45,7 +91,9 @@
 	}
 
 	.task-category,
-	.task-project {
+	.task-project,
+	.task-started,
+	.task-time-elapsed {
 		font-size: 12px;
 		color: var(--text-muted);
 		margin-bottom: 3px;

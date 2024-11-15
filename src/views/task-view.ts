@@ -19,6 +19,10 @@ export class TaskTimeTrackerLeafView extends ItemView {
 		return "Task Time Tracker";
 	}
 
+	getIcon(): string {
+		return "clipboard-list";
+	}
+
 	async onOpen(): Promise<void> {
 		this.view = new TaskLeafView({
 			target: this.contentEl,
