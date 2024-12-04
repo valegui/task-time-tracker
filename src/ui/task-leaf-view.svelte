@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { Notice } from "obsidian";
 	import type { Task } from "../tasks";
+	import type { App, Vault } from "obsidian";
+	import { TaskModal } from "../modals";
+	import { startTimerTrackerTask, createManualTrackerTask } from "../tasks";
 
 	export let task: Task | null;
 	export let duration: string | null;
 	export let stopTracker: () => void;
+	export let app: App;
+	export let vault: Vault;
+	export let trackerFile: string;
 
 	// Format duration from seconds to HH:MM:SS
 	function formatDuration(seconds: string | null | undefined): string {
@@ -32,7 +38,28 @@
 	}
 
 	function handleCreateTask() {
-		new Notice("Start");
+		new TaskModal(app, (taskData): void => {
+			new Notice(`Starting task: ${taskData.taskName}`);
+			if (taskData.endTime == null) {
+				startTimerTrackerTask(
+					vault,
+					trackerFile,
+					taskData.taskName,
+					taskData.taskCategory,
+					taskData.taskProject,
+				);
+			} else {
+				createManualTrackerTask(
+					vault,
+					trackerFile,
+					taskData.taskName,
+					taskData.startTime,
+					taskData.endTime,
+					taskData.taskCategory,
+					taskData.taskProject,
+				);
+			}
+		}).open();
 	}
 </script>
 

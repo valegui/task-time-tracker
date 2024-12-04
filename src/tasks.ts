@@ -236,6 +236,80 @@ export async function trackerTaskRunning(
 	}
 }
 
+export async function trackerDeleteTask(
+	vault: Vault,
+	trackerFile: string,
+	task: Task,
+): Promise<null> {
+	try {
+		const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
+			vault,
+			trackerFile,
+		);
+
+		const tasks = blockTaskList(codeBlockContent);
+		const taskString = formatWriteTask(task);
+
+		// Find and remove the task
+		const updatedContent = tasks.filter((t) => t !== taskString).join("\n");
+		const codeBlockContentUpdated = `${updatedContent}\n`;
+
+		await updateTrackerContent(
+			vault,
+			tracker,
+			match,
+			"",
+			codeBlockContentUpdated,
+		);
+
+		return null;
+	} catch (error) {
+		if (error instanceof Error) {
+			new Notice(error.message);
+		} else {
+			new Notice("An unknown error occurred");
+		}
+		return null;
+	}
+}
+
+export async function trackerStopTask(
+	vault: Vault,
+	trackerFile: string,
+	task: Task,
+) {
+	try {
+		const [tracker, , codeBlockContent, match] = await getTrackerCodeBlock(
+			vault,
+			trackerFile,
+		);
+		const tasks = blockTaskList(codeBlockContent);
+		const stoppedTask = stopTask(task);
+		const taskString = formatWriteTask(stoppedTask);
+
+		const foundTask = tasks.find(
+			(t) =>
+				formatReadTask(t).name === task.name &&
+				formatReadTask(t).startTime === task.startTime,
+		);
+
+		if (!foundTask) {
+			throw new Error("Could not find task");
+		}
+
+		const updatedContent = codeBlockContent.replace(foundTask, taskString);
+
+		await updateTrackerContent(vault, tracker, match, "", updatedContent);
+	} catch (err) {
+		if (err instanceof Error) {
+			new Notice(err.message);
+		} else {
+			new Notice("An unknown error occurred");
+		}
+		return null;
+	}
+}
+
 function trackerLastTaskRunning(tasks: string[]): Task | null {
 	for (let i = 0; i < tasks.length; i++) {
 		const task = formatReadTask(tasks[i]);

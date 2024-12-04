@@ -7,7 +7,9 @@ import {
 	createManualTrackerTask,
 	startTimerTrackerTask,
 	stopRunningTrackerTask,
+	trackerDeleteTask,
 	trackerHasTaskRunning,
+	trackerStopTask,
 	trackerTaskRunning,
 } from "./tasks";
 import TaskTable from "./ui/task-table.svelte";
@@ -35,6 +37,7 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 			(leaf) =>
 				new TaskTimeTrackerLeafView(
 					leaf,
+					this.app,
 					this.app.vault,
 					this.settings.trackerFile,
 				),
@@ -109,6 +112,20 @@ export default class TaskTimeTrackerPlugin extends Plugin {
 						props: {
 							data,
 							tableLength,
+							deleteTask: (task: Task) => {
+								trackerDeleteTask(
+									this.app.vault,
+									this.settings.trackerFile,
+									task,
+								);
+							},
+							stopTask: (task: Task) => {
+								trackerStopTask(
+									this.app.vault,
+									this.settings.trackerFile,
+									task,
+								);
+							},
 						},
 					});
 				} catch (error) {
